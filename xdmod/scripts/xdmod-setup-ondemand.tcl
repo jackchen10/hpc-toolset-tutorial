@@ -19,6 +19,8 @@ source [file join [file dirname [info script]] helper-functions.tcl]
 set timeout 240
 spawn "xdmod-setup"
 
+
+ignoreNewVersion
 # Add an OnDemand resource
 selectMenuOption 4
 

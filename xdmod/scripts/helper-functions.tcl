@@ -62,3 +62,14 @@ proc confirmDropDb { response } {
 	}
 	send $response\n
 }
+
+proc ignoreNewVersion {} {
+    expect {
+        "Do you want to continue" {
+        send "yes"
+        exp_continue
+        }
+    "Open XDMoD Setup" {
+        }
+    }
+}
