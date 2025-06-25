@@ -14,6 +14,7 @@ source [file join [file dirname [info script]] helper-functions.tcl]
 set timeout 240
 spawn "xdmod-setup"
 
+ignoreNewVersion
 selectMenuOption 1
 answerQuestion {Site Address} https://localhost:4443/
 provideInput {Email Address:} ccr-xdmod-help@buffalo.edu

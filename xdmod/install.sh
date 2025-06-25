@@ -10,6 +10,7 @@ log_info() {
 log_info "Installing required packages for xdmod.."
 
 ARCHTYPE=`uname -m`
+XDMOD_VERSION="11.0.1-1"
 
 #------------------------
 # For the purpose of the tutorial we install some extra packages that
@@ -46,9 +47,9 @@ dnf install -y \
 # be installed in the same container.  In a production deployment they may be installed
 # on separate hosts.
 #------------------------
-dnf install -y https://github.com/ubccr/xdmod/releases/download/v11.0.0-1.0/xdmod-11.0.0-1.0.el8.noarch.rpm \
-               https://github.com/ubccr/xdmod-ondemand/releases/download/v11.0.0-1.0/xdmod-ondemand-11.0.0-1.0.el8.noarch.rpm \
-               https://github.com/ubccr/xdmod-supremm/releases/download/v11.0.0-1.0/xdmod-supremm-11.0.0-1.0.el8.noarch.rpm \
+dnf install -y https://github.com/ubccr/xdmod/releases/download/v${XDMOD_VERSION}/xdmod-${XDMOD_VERSION}.el8.noarch.rpm \
+               https://github.com/ubccr/xdmod-ondemand/releases/download/v${XDMOD_VERSION}/xdmod-ondemand-${XDMOD_VERSION}.el8.noarch.rpm \
+               https://github.com/ubccr/xdmod-supremm/releases/download/v${XDMOD_VERSION}/xdmod-supremm-${XDMOD_VERSION}.el8.noarch.rpm \
                https://github.com/ubccr/supremm/releases/download/2.0.0/supremm-2.0.0-1.el8.${ARCHTYPE}.rpm
 
 #------------------------

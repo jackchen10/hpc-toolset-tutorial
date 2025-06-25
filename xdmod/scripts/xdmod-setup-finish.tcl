@@ -14,6 +14,7 @@ source [file join [file dirname [info script]] helper-functions.tcl]
 set timeout 240
 spawn "xdmod-setup"
 
+ignoreNewVersion
 selectMenuOption 5
 provideInput {Username:} admin
 providePassword {Password:} admin
