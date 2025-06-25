@@ -1,0 +1,23 @@
+@echo off
+echo Fixing XDMoD database configuration...
+
+echo Step 1: Updating database host to mysql...
+docker exec xdmod sed -i "s/host = \"localhost\"/host = \"mysql\"/g" /etc/xdmod/portal_settings.ini
+
+echo Step 2: Updating database user to xdmodapp...
+docker exec xdmod sed -i "s/user = \"xdmod\"/user = \"xdmodapp\"/g" /etc/xdmod/portal_settings.ini
+
+echo Step 3: Updating database password...
+docker exec xdmod sed -i "s/pass = \"\"/pass = \"ofbatgorWep0\"/g" /etc/xdmod/portal_settings.ini
+
+echo Step 4: Restarting XDMoD container...
+docker compose restart xdmod
+
+echo Step 5: Waiting for XDMoD to start...
+timeout /t 45 /nobreak
+
+echo Step 6: Checking XDMoD logs...
+docker logs xdmod --tail=10
+
+echo.
+echo XDMoD should now be accessible at https://localhost:4443

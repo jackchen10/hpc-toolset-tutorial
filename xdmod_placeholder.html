@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XDMoD - HPC Toolset Tutorial</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #2c5aa0;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        .status {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .service {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-left: 5px solid #2c5aa0;
+            border-radius: 8px;
+            transition: transform 0.2s;
+        }
+        .service:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .service h3 {
+            color: #2c5aa0;
+            margin-top: 0;
+            font-size: 1.3em;
+        }
+        .service a {
+            display: inline-block;
+            background: #2c5aa0;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 10px;
+            transition: background 0.3s;
+        }
+        .service a:hover {
+            background: #1e3d6f;
+        }
+        .ssh-command {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            margin-top: 10px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+            color: #6c757d;
+        }
+        .emoji {
+            font-size: 1.5em;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><span class="emoji">📊</span>XDMoD Service</h1>
+        
+        <div class="status">
+            <h3>🔧 Service Status</h3>
+            <p><strong>XDMoD is currently being configured and will be available soon.</strong></p>
+            <p>In the meantime, please use the other fully functional HPC management tools below.</p>
+        </div>
+
+        <div class="service">
+            <h3><span class="emoji">🔧</span>ColdFront - Resource Management</h3>
+            <p>Manage HPC resources, projects, allocations, and user permissions. Perfect for administrators to control resource access and track usage.</p>
+            <a href="https://localhost:2443" target="_blank">→ Access ColdFront</a>
+            <p><small><strong>Login:</strong> admin/admin</small></p>
+        </div>
+
+        <div class="service">
+            <h3><span class="emoji">🚀</span>OnDemand - HPC Portal</h3>
+            <p>Submit jobs, manage files, access interactive applications like Jupyter notebooks, and monitor job status through a user-friendly web interface.</p>
+            <a href="https://localhost:3443" target="_blank">→ Access OnDemand</a>
+            <p><small><strong>Login:</strong> hpcadmin/ilovelinux</small></p>
+        </div>
+
+        <div class="service">
+            <h3><span class="emoji">🔑</span>SSH Access - Direct Cluster Access</h3>
+            <p>Direct command-line access to the HPC cluster for advanced users and system administration.</p>
+            <div class="ssh-command">ssh -p 6222 hpcadmin@localhost</div>
+            <p><small><strong>Password:</strong> ilovelinux</small></p>
+        </div>
+
+        <div class="footer">
+            <p><strong>HPC Toolset Tutorial</strong></p>
+            <p>All services are running and accessible. This tutorial provides a complete HPC management environment for learning and testing.</p>
+            <p><small>XDMoD will provide job performance analysis and system monitoring once configured.</small></p>
+        </div>
+    </div>
+</body>
+</html>
