@@ -1,0 +1,64 @@
+---
+# Batch Connect app configuration file
+
+# **MUST** set cluster id here that matches cluster configuration file
+cluster: "hpc"
+
+# Define attribute values that aren't meant to be modified by the user
+attributes:
+  # Set the corresponding modules that need to be loaded for R to run
+  modules: ""
+
+  # R version selection
+  r_version:
+    widget: "select"
+    label: "R Version"
+    help: "Select the R version to use"
+    options:
+      - ["R 4.3.0", "4.3.0"]
+      - ["R 4.2.0", "4.2.0"]
+      - ["R 4.1.0", "4.1.0"]
+    value: "4.3.0"
+
+  # Memory allocation
+  memory:
+    widget: "number_field"
+    max: 4000
+    min: 500
+    step: 500
+    value: 2000
+    label: "Memory (MB)"
+    help: "Amount of memory to allocate for RStudio session"
+    display: true
+
+  # Number of CPU cores
+  bc_num_slots:
+    display: true
+    max: 4
+    min: 1
+    value: 1
+    label: "Number of CPU cores"
+    help: "Number of CPU cores to allocate"
+
+  # Session duration
+  bc_num_hours:
+    display: true
+    max: 8
+    min: 1
+    value: 2
+    label: "Number of hours"
+    help: "Maximum session duration"
+
+  # Working directory
+  working_dir:
+    widget: "text_field"
+    label: "Working Directory"
+    help: "Path to your working directory (optional)"
+    value: "${HOME}"
+
+form:
+  - r_version
+  - working_dir
+  - memory
+  - bc_num_slots
+  - bc_num_hours

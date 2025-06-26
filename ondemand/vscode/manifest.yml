@@ -1,0 +1,8 @@
+---
+name: VS Code Server
+category: Interactive Apps
+subcategory: Development
+role: batch_connect
+description: |
+  This app will launch a VS Code Server session for web-based development.
+  Access a full-featured code editor with extensions and terminal support.

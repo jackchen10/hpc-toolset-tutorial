@@ -1,0 +1,8 @@
+---
+name: Text Editor
+category: Interactive Apps
+subcategory: Development
+role: batch_connect
+description: |
+  This app launches a simple web-based text editor using Jupyter Lab interface.
+  Perfect for editing configuration files, scripts, and documentation.

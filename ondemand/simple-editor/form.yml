@@ -1,0 +1,24 @@
+---
+# Simple Text Editor Batch Connect app configuration
+
+cluster: "hpc"
+
+attributes:
+  # Working directory
+  working_dir:
+    widget: "text_field"
+    label: "Working Directory"
+    help: "Directory to open in the editor"
+    value: "${HOME}"
+
+  # Session duration
+  bc_num_hours:
+    display: true
+    max: 4
+    min: 1
+    value: 2
+    label: "Hours"
+
+form:
+  - working_dir
+  - bc_num_hours

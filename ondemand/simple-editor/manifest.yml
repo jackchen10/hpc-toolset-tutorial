@@ -1,0 +1,8 @@
+---
+name: Simple Text Editor
+category: Interactive Apps
+subcategory: Development
+role: batch_connect
+description: |
+  This app launches a simple web-based text editor for quick file editing.
+  Perfect for configuration files and simple scripts.

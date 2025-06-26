@@ -1,0 +1,37 @@
+---
+# Text Editor Batch Connect app configuration
+
+cluster: "hpc"
+
+attributes:
+  # Memory allocation
+  memory:
+    widget: "number_field"
+    max: 2000
+    min: 500
+    step: 500
+    value: 1000
+    label: "Memory (MB)"
+    help: "Amount of memory to allocate"
+    display: true
+
+  # Session duration
+  bc_num_hours:
+    display: true
+    max: 4
+    min: 1
+    value: 2
+    label: "Hours"
+
+  # CPU cores
+  bc_num_slots:
+    display: true
+    max: 2
+    min: 1
+    value: 1
+    label: "CPU Cores"
+
+form:
+  - memory
+  - bc_num_slots
+  - bc_num_hours

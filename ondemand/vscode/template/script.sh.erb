@@ -1,0 +1,75 @@
+#!/bin/bash
+
+# Exit on any error
+set -e
+
+# Set working directory - use HOME as default
+WORK_DIR="${HOME}"
+<% if defined?(working_dir) && !working_dir.to_s.empty? %>
+WORK_DIR="<%= working_dir %>"
+<% end %>
+
+cd "${WORK_DIR}"
+
+# Set up temporary directories
+export TMPDIR="${TMPDIR:-/tmp}"
+VSCODE_TMP="${TMPDIR}/vscode-server-${USER}-${SLURM_JOB_ID:-$$}"
+mkdir -p "${VSCODE_TMP}"
+
+# Generate secure random password
+password=$(openssl rand -base64 32 | tr -d "=+/" | cut -c1-25)
+
+# Find available port
+port=$(python3 -c 'import socket; s=socket.socket(); s.bind(("", 0)); print(s.getsockname()[1]); s.close()')
+
+# Set up VS Code Server data directory
+VSCODE_DATA_DIR="${VSCODE_TMP}/data"
+mkdir -p "${VSCODE_DATA_DIR}"
+
+# Export connection info
+echo "host=$(hostname -f)" > "${VSCODE_TMP}/connection.yml"
+echo "port=${port}" >> "${VSCODE_TMP}/connection.yml"
+echo "password=${password}" >> "${VSCODE_TMP}/connection.yml"
+
+# Print connection information
+echo "Starting VS Code Server..."
+echo "Host: $(hostname -f)"
+echo "Port: ${port}"
+echo "Password: ${password}"
+echo "Working Directory: $(pwd)"
+echo "Data Directory: ${VSCODE_DATA_DIR}"
+
+# Download and install code-server if not available
+CODESERVER_VERSION="4.16.1"
+CODESERVER_DIR="${VSCODE_TMP}/code-server"
+mkdir -p "${CODESERVER_DIR}"
+
+# Check if code-server is available in PATH
+if ! command -v code-server &> /dev/null; then
+    echo "Downloading code-server..."
+    cd "${CODESERVER_DIR}"
+    
+    # Download code-server
+    wget -q "https://github.com/coder/code-server/releases/download/v${CODESERVER_VERSION}/code-server-${CODESERVER_VERSION}-linux-amd64.tar.gz" -O code-server.tar.gz
+    
+    # Extract
+    tar -xzf code-server.tar.gz --strip-components=1
+    
+    # Make executable
+    chmod +x code-server
+    
+    CODESERVER_BIN="${CODESERVER_DIR}/code-server"
+else
+    CODESERVER_BIN="code-server"
+fi
+
+# Start VS Code Server
+echo "Launching VS Code Server..."
+exec "${CODESERVER_BIN}" \
+    --bind-addr "0.0.0.0:${port}" \
+    --auth password \
+    --password "${password}" \
+    --user-data-dir "${VSCODE_DATA_DIR}" \
+    --disable-telemetry \
+    --disable-update-check \
+    "$(pwd)"

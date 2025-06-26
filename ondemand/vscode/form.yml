@@ -1,0 +1,45 @@
+---
+# VS Code Server Batch Connect app configuration
+
+cluster: "hpc"
+
+attributes:
+  # Working directory
+  working_dir:
+    widget: "text_field"
+    label: "Working Directory"
+    help: "Path to your project directory"
+    value: "${HOME}"
+
+  # Memory allocation
+  memory:
+    widget: "number_field"
+    max: 8000
+    min: 1000
+    step: 1000
+    value: 2000
+    label: "Memory (MB)"
+    help: "Amount of memory to allocate"
+    display: true
+
+  # CPU cores
+  bc_num_slots:
+    display: true
+    max: 4
+    min: 1
+    value: 2
+    label: "CPU Cores"
+
+  # Session duration
+  bc_num_hours:
+    display: true
+    max: 8
+    min: 1
+    value: 4
+    label: "Hours"
+
+form:
+  - working_dir
+  - memory
+  - bc_num_slots
+  - bc_num_hours

@@ -1,0 +1,100 @@
+#!/bin/bash
+
+# Exit on any error
+set -e
+
+# Load environment modules if specified
+<% if defined?(modules) && !modules.to_s.empty? %>
+module purge
+module load <%= modules %>
+<% end %>
+
+# Set working directory
+<% if defined?(working_dir) && !working_dir.to_s.empty? %>
+cd "<%= working_dir %>"
+<% else %>
+cd "${HOME}"
+<% end %>
+
+# Set up temporary directories
+export TMPDIR="${TMPDIR:-/tmp}"
+export TMP="${TMP:-/tmp}"
+RSTUDIO_TMP="${TMPDIR}/rstudio-server-${USER}-${SLURM_JOB_ID:-$$}"
+mkdir -p "${RSTUDIO_TMP}"
+
+# Generate secure random password
+password=$(openssl rand -base64 32 | tr -d "=+/" | cut -c1-25)
+export RSTUDIO_PASSWORD="${password}"
+
+# Find available port
+port=$(python3 -c 'import socket; s=socket.socket(); s.bind(("", 0)); print(s.getsockname()[1]); s.close()')
+
+# Create RStudio configuration
+cat > "${RSTUDIO_TMP}/rserver.conf" << EOF
+# Server Configuration File
+www-port=${port}
+www-address=0.0.0.0
+auth-none=0
+auth-pam-helper-path=pam-helper
+auth-stay-signed-in-days=30
+auth-timeout-minutes=0
+server-user=${USER}
+EOF
+
+# Create database configuration
+cat > "${RSTUDIO_TMP}/database.conf" << EOF
+provider=sqlite
+directory=${RSTUDIO_TMP}/rstudio-server
+EOF
+
+# Create logging configuration
+cat > "${RSTUDIO_TMP}/logging.conf" << EOF
+[*]
+log-level=warn
+logger-type=file
+log-dir=${RSTUDIO_TMP}/logs
+EOF
+
+# Create logs directory
+mkdir -p "${RSTUDIO_TMP}/logs"
+mkdir -p "${RSTUDIO_TMP}/rstudio-server"
+
+# Set R environment
+export R_LIBS_USER="${HOME}/R/library"
+mkdir -p "${R_LIBS_USER}"
+
+# Create R profile for session
+cat > "${RSTUDIO_TMP}/.Rprofile" << 'EOF'
+# Set CRAN mirror
+options(repos = c(CRAN = "https://cloud.r-project.org/"))
+
+# Set library path
+.libPaths(c(Sys.getenv("R_LIBS_USER"), .libPaths()))
+
+# Welcome message
+cat("Welcome to RStudio Server on HPC!\n")
+cat("Working directory:", getwd(), "\n")
+cat("R version:", R.version.string, "\n")
+EOF
+
+# Export connection info
+echo "host=$(hostname -f)" > "${RSTUDIO_TMP}/connection.yml"
+echo "port=${port}" >> "${RSTUDIO_TMP}/connection.yml"
+echo "password=${password}" >> "${RSTUDIO_TMP}/connection.yml"
+
+# Print connection information
+echo "Starting RStudio Server..."
+echo "Host: $(hostname -f)"
+echo "Port: ${port}"
+echo "Password: ${password}"
+echo "Working Directory: $(pwd)"
+echo "Temporary Directory: ${RSTUDIO_TMP}"
+
+# Start RStudio Server
+exec /usr/lib/rstudio-server/bin/rserver \
+  --server-config-file="${RSTUDIO_TMP}/rserver.conf" \
+  --database-config-file="${RSTUDIO_TMP}/database.conf" \
+  --logging-config-file="${RSTUDIO_TMP}/logging.conf" \
+  --server-data-dir="${RSTUDIO_TMP}/rstudio-server" \
+  --server-pid-file="${RSTUDIO_TMP}/rstudio-server.pid" \
+  --rsession-config-file="${RSTUDIO_TMP}/.Rprofile"

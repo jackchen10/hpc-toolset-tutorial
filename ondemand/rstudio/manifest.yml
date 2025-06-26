@@ -1,0 +1,8 @@
+---
+name: RStudio Server
+category: Interactive Apps
+subcategory: Servers
+role: batch_connect
+description: |
+  This app will launch an RStudio Server session on a compute node.
+  RStudio Server provides a web-based interface to R for data analysis and visualization.

@@ -1,0 +1,18 @@
+---
+batch_connect:
+  template: "template/script.sh.erb"
+  conn_params:
+    - host
+    - port
+    - password
+script:
+  accounting_id: "<%= bc_account %>"
+  queue_name: "<%= bc_queue.blank? ? "compute" : bc_queue %>"
+  wall_time: "<%= bc_num_hours.to_i * 3600 %>"
+  email_on_started: true
+  job_name: "rstudio_server"
+  native:
+    - "--nodes=1"
+    - "--ntasks-per-node=<%= bc_num_slots.to_i %>"
+    - "--mem=<%= memory.to_i %>M"
+    - "--cpus-per-task=1"
