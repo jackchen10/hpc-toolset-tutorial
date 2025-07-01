@@ -1,0 +1,119 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Setup script for Aliyun E-HPC Ruby SDK
+# This script automatically installs dependencies and sets up the environment
+
+require 'fileutils'
+
+def run_command(command, description)
+  puts "#{description}..."
+  puts "Running: #{command}"
+  
+  success = system(command)
+  
+  if success
+    puts "✅ #{description} completed successfully"
+  else
+    puts "❌ #{description} failed"
+    exit 1
+  end
+  
+  puts
+end
+
+def check_ruby_version
+  puts "Checking Ruby version..."
+  ruby_version = RUBY_VERSION
+  puts "Current Ruby version: #{ruby_version}"
+  
+  required_version = Gem::Version.new('2.7.0')
+  current_version = Gem::Version.new(ruby_version)
+  
+  if current_version >= required_version
+    puts "✅ Ruby version is compatible"
+  else
+    puts "❌ Ruby version #{ruby_version} is too old. Required: >= 2.7.0"
+    puts "Please upgrade Ruby and try again."
+    exit 1
+  end
+  
+  puts
+end
+
+def check_bundler
+  puts "Checking Bundler..."
+  
+  if system('bundle --version > nul 2>&1')
+    puts "✅ Bundler is already installed"
+  else
+    puts "Installing Bundler..."
+    run_command('gem install bundler', 'Bundler installation')
+  end
+  
+  puts
+end
+
+def install_dependencies
+  puts "Installing project dependencies..."
+  
+  if File.exist?('Gemfile')
+    run_command('bundle install', 'Dependencies installation')
+  else
+    puts "❌ Gemfile not found. Please run this script from the project root directory."
+    exit 1
+  end
+end
+
+def check_config_file
+  puts "Checking configuration file..."
+  
+  config_file = 'config/credentials.yml'
+  
+  if File.exist?(config_file)
+    puts "✅ Configuration file exists: #{config_file}"
+    puts "Please make sure your AccessKey credentials are correctly configured."
+  else
+    puts "❌ Configuration file not found: #{config_file}"
+    puts "The file should have been created automatically. Please check the setup."
+  end
+  
+  puts
+end
+
+def main
+  puts "=== Aliyun E-HPC Ruby SDK Setup ==="
+  puts
+  
+  # Change to project directory
+  project_dir = File.expand_path('..', __dir__)
+  Dir.chdir(project_dir)
+  puts "Working directory: #{Dir.pwd}"
+  puts
+  
+  # Check Ruby version
+  check_ruby_version
+  
+  # Check and install Bundler
+  check_bundler
+  
+  # Install dependencies
+  install_dependencies
+  
+  # Check configuration
+  check_config_file
+  
+  puts "=== Setup Complete ==="
+  puts
+  puts "🎉 Setup completed successfully!"
+  puts
+  puts "Next steps:"
+  puts "1. Edit config/credentials.yml with your AccessKey credentials"
+  puts "2. Run the permission test: ruby examples/test_permissions.rb"
+  puts "3. Try the basic usage example: ruby examples/basic_usage.rb"
+  puts
+end
+
+if __FILE__ == $0
+  main
+end

@@ -1,0 +1,90 @@
+# MPI-enabled Slurm Docker Image
+# Based on the original HPC Toolset Tutorial with MPI support
+
+ARG HPCTS_VERSION=latest
+
+FROM --platform=linux/amd64 ubccr/hpcts:base-${HPCTS_VERSION} as stage-amd64
+FROM --platform=linux/arm64 ubccr/hpcts:base-${HPCTS_VERSION} as stage-arm64
+
+ARG TARGETARCH
+FROM stage-${TARGETARCH} as final
+
+# Install MPI and additional packages (disable problematic repos)
+RUN dnf update -y && \
+    dnf install -y --disablerepo=TurboVNC* \
+        openmpi \
+        openmpi-devel \
+        python3-numpy \
+        python3-matplotlib \
+        python3-scipy \
+        environment-modules \
+        hwloc \
+        hwloc-devel && \
+    dnf clean all
+
+# Set up MPI environment
+ENV PATH="/usr/lib64/openmpi/bin:$PATH"
+ENV LD_LIBRARY_PATH="/usr/lib64/openmpi/lib:$LD_LIBRARY_PATH"
+ENV MANPATH="/usr/lib64/openmpi/share/man:$MANPATH"
+ENV MPI_ROOT="/usr/lib64/openmpi"
+ENV OMPI_MCA_btl_vader_single_copy_mechanism=none
+ENV OMPI_MCA_btl_base_warn_component_unused=0
+ENV OMPI_MCA_plm_rsh_agent=/usr/bin/ssh
+ENV OMPI_ALLOW_RUN_AS_ROOT=1
+ENV OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
+
+# Install Python MPI packages
+RUN /usr/bin/python3 -m pip install --user mpi4py
+
+# Install additional Python packages in Jupyter environment if it exists
+RUN if [ -d "/usr/local/jupyter/4.3.5" ]; then \
+        source /usr/local/jupyter/4.3.5/bin/activate && \
+        pip install --upgrade pip && \
+        pip install mpi4py numpy matplotlib scipy && \
+        deactivate; \
+    fi
+
+# Original Slurm installation
+ARG SLURM_VERSION
+COPY . /build
+RUN /build/install.sh && rm -rf /build
+
+# Copy configuration files
+COPY slurm.conf /etc/slurm/slurm.conf
+COPY cgroup.conf /etc/slurm/cgroup.conf
+COPY --chown=slurm:slurm slurmdbd.conf /etc/slurm/slurmdbd.conf
+RUN chmod 600 /etc/slurm/slurmdbd.conf
+
+# Copy scripts and templates
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY pmlogger-supremm.config /etc/pcp/pmlogger/pmlogger-supremm.config
+COPY slurm-prolog.sh /usr/local/bin/slurm-prolog.sh
+COPY slurm-epilog.sh /usr/local/bin/slurm-epilog.sh
+COPY submit_jobs.sh /usr/local/bin/submit_jobs.sh
+COPY example_job.sbatch /usr/local/bin/example_job.sbatch
+
+# Create MPI environment setup script
+RUN echo 'export PATH="/usr/lib64/openmpi/bin:$PATH"' > /etc/profile.d/mpi.sh && \
+    echo 'export LD_LIBRARY_PATH="/usr/lib64/openmpi/lib:$LD_LIBRARY_PATH"' >> /etc/profile.d/mpi.sh && \
+    echo 'export MPI_ROOT="/usr/lib64/openmpi"' >> /etc/profile.d/mpi.sh && \
+    echo 'export OMPI_MCA_btl_vader_single_copy_mechanism=none' >> /etc/profile.d/mpi.sh && \
+    echo 'export OMPI_MCA_btl_base_warn_component_unused=0' >> /etc/profile.d/mpi.sh && \
+    echo 'export OMPI_MCA_plm_rsh_agent=/usr/bin/ssh' >> /etc/profile.d/mpi.sh && \
+    echo 'export OMPI_ALLOW_RUN_AS_ROOT=1' >> /etc/profile.d/mpi.sh && \
+    echo 'export OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1' >> /etc/profile.d/mpi.sh && \
+    chmod +x /etc/profile.d/mpi.sh
+
+# Create MPI test script
+RUN echo '#!/usr/bin/env python3' > /usr/local/bin/test_mpi.py && \
+    echo 'from mpi4py import MPI' >> /usr/local/bin/test_mpi.py && \
+    echo 'import numpy as np' >> /usr/local/bin/test_mpi.py && \
+    echo 'comm = MPI.COMM_WORLD' >> /usr/local/bin/test_mpi.py && \
+    echo 'rank = comm.Get_rank()' >> /usr/local/bin/test_mpi.py && \
+    echo 'size = comm.Get_size()' >> /usr/local/bin/test_mpi.py && \
+    echo 'print(f"Hello from rank {rank} of {size} processes")' >> /usr/local/bin/test_mpi.py && \
+    echo 'if rank == 0:' >> /usr/local/bin/test_mpi.py && \
+    echo '    print("MPI test completed successfully!")' >> /usr/local/bin/test_mpi.py && \
+    chmod +x /usr/local/bin/test_mpi.py
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD ["frontend"]

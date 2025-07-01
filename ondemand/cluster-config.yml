@@ -18,3 +18,13 @@ v2:
   custom:
     xdmod:
       resource_id: 1
+    # MPI configuration
+    mpi:
+      default: "openmpi"
+      implementations:
+        openmpi:
+          module: "mpi/openmpi"
+          mpirun_cmd: "mpirun"
+        mpich:
+          module: "mpi/mpich"
+          mpirun_cmd: "mpirun"

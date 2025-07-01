@@ -1,0 +1,76 @@
+# Aliyun E-HPC Configuration
+# 
+# This file contains configuration settings for different environments.
+# You can override these settings using environment variables.
+
+# Development environment configuration
+development:
+  # Aliyun credentials (use environment variables for security)
+  access_key_id: <%= ENV['ALIYUN_ACCESS_KEY_ID'] %>
+  access_key_secret: <%= ENV['ALIYUN_ACCESS_KEY_SECRET'] %>
+  
+  # Region and endpoint settings
+  region: cn-hangzhou
+  endpoint: https://ehpc.cn-hangzhou.aliyuncs.com
+  api_version: 2018-04-12
+  
+  # Network settings
+  timeout: 30
+  retry_count: 3
+  retry_delay: 1
+  ssl_verify: true
+  
+  # Logging settings
+  log_level: debug
+  
+  # Default cluster settings
+  cluster_id: <%= ENV['ALIYUN_EHPC_CLUSTER_ID'] %>
+  
+  # Proxy settings (optional)
+  # proxy_host: proxy.example.com
+  # proxy_port: 8080
+  # proxy_user: username
+  # proxy_pass: password
+
+# Test environment configuration
+test:
+  access_key_id: test_access_key
+  access_key_secret: test_access_secret
+  region: cn-hangzhou
+  endpoint: https://ehpc.cn-hangzhou.aliyuncs.com
+  api_version: 2018-04-12
+  timeout: 10
+  retry_count: 1
+  retry_delay: 0.5
+  ssl_verify: false
+  log_level: warn
+  cluster_id: test-cluster
+
+# Production environment configuration
+production:
+  # Aliyun credentials (MUST use environment variables in production)
+  access_key_id: <%= ENV['ALIYUN_ACCESS_KEY_ID'] %>
+  access_key_secret: <%= ENV['ALIYUN_ACCESS_KEY_SECRET'] %>
+  
+  # Region and endpoint settings
+  region: <%= ENV['ALIYUN_EHPC_REGION'] || 'cn-hangzhou' %>
+  endpoint: <%= ENV['ALIYUN_EHPC_ENDPOINT'] || 'https://ehpc.cn-hangzhou.aliyuncs.com' %>
+  api_version: 2018-04-12
+  
+  # Network settings
+  timeout: <%= ENV['ALIYUN_EHPC_TIMEOUT'] || 60 %>
+  retry_count: <%= ENV['ALIYUN_EHPC_RETRY_COUNT'] || 5 %>
+  retry_delay: <%= ENV['ALIYUN_EHPC_RETRY_DELAY'] || 2 %>
+  ssl_verify: true
+  
+  # Logging settings
+  log_level: <%= ENV['ALIYUN_EHPC_LOG_LEVEL'] || 'info' %>
+  
+  # Default cluster settings
+  cluster_id: <%= ENV['ALIYUN_EHPC_CLUSTER_ID'] %>
+  
+  # Proxy settings (if needed)
+  proxy_host: <%= ENV['ALIYUN_EHPC_PROXY_HOST'] %>
+  proxy_port: <%= ENV['ALIYUN_EHPC_PROXY_PORT'] %>
+  proxy_user: <%= ENV['ALIYUN_EHPC_PROXY_USER'] %>
+  proxy_pass: <%= ENV['ALIYUN_EHPC_PROXY_PASS'] %>

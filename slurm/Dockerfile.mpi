@@ -1,0 +1,98 @@
+# Extended Dockerfile with MPI support for HPC Toolset Tutorial
+# Based on the original slurm/Dockerfile with added MPI capabilities
+
+ARG HPCTS_VERSION=latest
+
+FROM --platform=linux/amd64 ubccr/hpcts:base-${HPCTS_VERSION} as stage-amd64
+FROM --platform=linux/arm64 ubccr/hpcts:base-${HPCTS_VERSION} as stage-arm64
+
+ARG TARGETARCH
+FROM stage-${TARGETARCH} as final
+
+# Install MPI and additional packages (disable problematic repos)
+RUN dnf update -y && \
+    dnf install -y --disablerepo=TurboVNC* \
+    openmpi \
+    openmpi-devel \
+    python3-numpy \
+    python3-matplotlib \
+    python3-scipy \
+    environment-modules \
+    hwloc \
+    hwloc-devel && \
+    dnf clean all
+
+# Set up MPI environment
+ENV PATH="/usr/lib64/openmpi/bin:$PATH"
+ENV LD_LIBRARY_PATH="/usr/lib64/openmpi/lib:$LD_LIBRARY_PATH"
+ENV MANPATH="/usr/lib64/openmpi/share/man:$MANPATH"
+ENV MPI_ROOT="/usr/lib64/openmpi"
+ENV OMPI_MCA_btl_vader_single_copy_mechanism=none
+ENV OMPI_MCA_btl_base_warn_component_unused=0
+ENV OMPI_MCA_plm_rsh_agent=/usr/bin/ssh
+ENV OMPI_ALLOW_RUN_AS_ROOT=1
+ENV OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
+
+# Original Slurm installation
+ARG SLURM_VERSION
+COPY . /build
+RUN /build/install.sh && rm -rf /build
+
+# Install additional Python packages in Jupyter environment
+RUN if [ -d "/usr/local/jupyter/4.3.5" ]; then \
+    source /usr/local/jupyter/4.3.5/bin/activate && \
+    pip install --upgrade pip && \
+    pip install mpi4py numpy matplotlib scipy && \
+    deactivate; \
+    fi
+
+# Copy configuration files
+COPY slurm.conf /etc/slurm/slurm.conf
+COPY cgroup.conf /etc/slurm/cgroup.conf
+COPY --chown=slurm:slurm slurmdbd.conf /etc/slurm/slurmdbd.conf
+RUN chmod 600 /etc/slurm/slurmdbd.conf
+
+# Copy scripts and templates
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY pmlogger-supremm.config /etc/pcp/pmlogger/pmlogger-supremm.config
+COPY slurm-prolog.sh /usr/local/bin/slurm-prolog.sh
+COPY slurm-epilog.sh /usr/local/bin/slurm-epilog.sh
+COPY submit_jobs.sh /usr/local/bin/submit_jobs.sh
+COPY example_job.sbatch /usr/local/bin/example_job.sbatch
+
+# Add MPI-specific scripts
+COPY ../scripts/install_mpi_support.sh /usr/local/bin/install_mpi_support.sh
+RUN chmod +x /usr/local/bin/install_mpi_support.sh
+
+# Create MPI test script
+RUN cat > /usr/local/bin/test_mpi.py << 'EOF' && \
+    #!/usr/bin/env python3
+    from mpi4py import MPI
+import numpy as np
+
+comm = MPI.COMM_WORLD
+rank = comm.Get_rank()
+size = comm.Get_size()
+
+print(f"Hello from rank {rank} of {size} processes")
+
+if rank == 0:
+data = np.arange(10)
+print(f"Root process sending data: {data}")
+else:
+data = None
+
+data = comm.bcast(data, root=0)
+print(f"Rank {rank} received data: {data}")
+
+comm.Barrier()
+if rank == 0:
+print("MPI test completed successfully!")
+EOF
+chmod +x /usr/local/bin/test_mpi.py
+
+# Update Slurm configuration for MPI
+RUN sed -i 's/MpiDefault=none/MpiDefault=pmix/' /etc/slurm/slurm.conf
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD ["frontend"]

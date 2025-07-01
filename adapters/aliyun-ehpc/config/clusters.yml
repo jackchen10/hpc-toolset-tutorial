@@ -1,0 +1,220 @@
+# Cluster Configuration
+#
+# This file defines the configuration for different E-HPC clusters
+# that can be used with the OnDemand integration.
+
+# Default cluster settings
+default:
+  # Default resource limits
+  max_nodes: 100
+  max_cores_per_node: 64
+  max_memory_per_node: 256  # GB
+  max_walltime: 168  # hours (7 days)
+  
+  # Default queue settings
+  default_queue: normal
+  
+  # Default job settings
+  default_job_timeout: 3600  # seconds
+  max_jobs_per_user: 50
+  
+  # Default storage settings
+  home_directory: /home
+  shared_storage: /shared
+  scratch_storage: /scratch
+
+# Cluster definitions
+clusters:
+  # Production cluster
+  production:
+    cluster_id: ehpc-prod-001
+    name: "Production HPC Cluster"
+    description: "Main production cluster for HPC workloads"
+    region: cn-hangzhou
+    zone: cn-hangzhou-i
+    
+    # Resource configuration
+    resources:
+      max_nodes: 200
+      max_cores_per_node: 64
+      max_memory_per_node: 512  # GB
+      max_walltime: 336  # hours (14 days)
+    
+    # Queue configuration
+    queues:
+      normal:
+        name: normal
+        description: "Normal priority queue"
+        max_nodes: 50
+        max_walltime: 72  # hours
+        priority: 100
+      
+      high:
+        name: high
+        description: "High priority queue"
+        max_nodes: 20
+        max_walltime: 24  # hours
+        priority: 200
+      
+      gpu:
+        name: gpu
+        description: "GPU computing queue"
+        max_nodes: 10
+        max_walltime: 48  # hours
+        priority: 150
+        node_type: gpu
+    
+    # Storage configuration
+    storage:
+      home_directory: /home
+      shared_storage: /shared
+      scratch_storage: /scratch
+      max_home_quota: 100  # GB
+      max_shared_quota: 1000  # GB
+    
+    # Network configuration
+    network:
+      vpc_id: vpc-prod-001
+      subnet_id: subnet-prod-001
+      security_group_id: sg-prod-001
+    
+    # Software configuration
+    software:
+      modules:
+        - gcc/9.3.0
+        - openmpi/4.1.0
+        - python/3.8.5
+        - R/4.0.3
+      
+      containers:
+        singularity: true
+        docker: false
+  
+  # Development cluster
+  development:
+    cluster_id: ehpc-dev-001
+    name: "Development HPC Cluster"
+    description: "Development and testing cluster"
+    region: cn-hangzhou
+    zone: cn-hangzhou-j
+    
+    # Resource configuration
+    resources:
+      max_nodes: 20
+      max_cores_per_node: 32
+      max_memory_per_node: 128  # GB
+      max_walltime: 24  # hours
+    
+    # Queue configuration
+    queues:
+      debug:
+        name: debug
+        description: "Debug and testing queue"
+        max_nodes: 5
+        max_walltime: 2  # hours
+        priority: 50
+      
+      normal:
+        name: normal
+        description: "Normal development queue"
+        max_nodes: 15
+        max_walltime: 12  # hours
+        priority: 100
+    
+    # Storage configuration
+    storage:
+      home_directory: /home
+      shared_storage: /shared
+      scratch_storage: /scratch
+      max_home_quota: 50  # GB
+      max_shared_quota: 200  # GB
+    
+    # Network configuration
+    network:
+      vpc_id: vpc-dev-001
+      subnet_id: subnet-dev-001
+      security_group_id: sg-dev-001
+    
+    # Software configuration
+    software:
+      modules:
+        - gcc/9.3.0
+        - python/3.8.5
+      
+      containers:
+        singularity: true
+        docker: true
+  
+  # GPU cluster
+  gpu:
+    cluster_id: ehpc-gpu-001
+    name: "GPU Computing Cluster"
+    description: "Specialized cluster for GPU computing workloads"
+    region: cn-hangzhou
+    zone: cn-hangzhou-k
+    
+    # Resource configuration
+    resources:
+      max_nodes: 50
+      max_cores_per_node: 32
+      max_memory_per_node: 256  # GB
+      max_walltime: 168  # hours
+      gpu_per_node: 4
+    
+    # Queue configuration
+    queues:
+      gpu-normal:
+        name: gpu-normal
+        description: "Normal GPU queue"
+        max_nodes: 30
+        max_walltime: 72  # hours
+        priority: 100
+        node_type: gpu
+      
+      gpu-high:
+        name: gpu-high
+        description: "High priority GPU queue"
+        max_nodes: 10
+        max_walltime: 24  # hours
+        priority: 200
+        node_type: gpu
+      
+      gpu-interactive:
+        name: gpu-interactive
+        description: "Interactive GPU queue"
+        max_nodes: 5
+        max_walltime: 8  # hours
+        priority: 150
+        node_type: gpu
+        interactive: true
+    
+    # Storage configuration
+    storage:
+      home_directory: /home
+      shared_storage: /shared
+      scratch_storage: /scratch
+      gpu_scratch: /gpu_scratch
+      max_home_quota: 200  # GB
+      max_shared_quota: 2000  # GB
+    
+    # Network configuration
+    network:
+      vpc_id: vpc-gpu-001
+      subnet_id: subnet-gpu-001
+      security_group_id: sg-gpu-001
+      high_bandwidth: true
+    
+    # Software configuration
+    software:
+      modules:
+        - gcc/9.3.0
+        - cuda/11.2
+        - cudnn/8.1.0
+        - python/3.8.5
+        - tensorflow/2.6.0
+        - pytorch/1.9.0
+      
+      containers:
+        singularity: true
+        docker: true
+        nvidia_docker: true

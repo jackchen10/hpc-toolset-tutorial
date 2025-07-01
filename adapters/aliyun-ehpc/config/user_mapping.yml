@@ -1,0 +1,133 @@
+# User Mapping Configuration
+#
+# This file defines the mapping between local users and Aliyun E-HPC users.
+# It supports both direct mapping and pattern-based mapping.
+
+# Default mapping configuration
+default:
+  # Default user mapping strategy
+  # Options: 'direct', 'prefix', 'suffix', 'custom'
+  strategy: direct
+  
+  # Default user prefix for E-HPC (when using prefix strategy)
+  prefix: ''
+  
+  # Default user suffix for E-HPC (when using suffix strategy)
+  suffix: ''
+  
+  # Default user domain for E-HPC
+  domain: ''
+  
+  # Default user group mapping
+  default_group: users
+  
+  # Whether to create users automatically if they don't exist
+  auto_create_users: false
+
+# Direct user mappings
+# Maps local usernames to E-HPC usernames
+users:
+  # Example mappings:
+  # john: john.doe
+  # jane: jane.smith
+  # admin: ehpc-admin
+  
+  # Default mapping (comment out if not needed)
+  # '*': '${username}'  # Maps any username to itself
+
+# Group mappings
+# Maps local groups to E-HPC groups
+groups:
+  # Example mappings:
+  # staff: ehpc-staff
+  # students: ehpc-students
+  # faculty: ehpc-faculty
+  
+  # Default group mapping
+  users: ehpc-users
+  admin: ehpc-admin
+
+# Queue mappings
+# Maps local queue names to E-HPC queue names
+queues:
+  # Example mappings:
+  # compute: normal
+  # gpu: gpu-queue
+  # high-mem: memory-queue
+  
+  # Default queue mappings
+  normal: normal
+  compute: compute
+  gpu: gpu
+  debug: debug
+
+# Resource mappings
+# Maps local resource specifications to E-HPC resource specifications
+resources:
+  # CPU mappings
+  cpu:
+    # Map local CPU types to E-HPC instance types
+    standard: ecs.c6.large
+    compute: ecs.c6.xlarge
+    memory: ecs.r6.large
+    gpu: ecs.gn6i.large
+  
+  # Memory mappings (in MB)
+  memory:
+    small: 2048
+    medium: 4096
+    large: 8192
+    xlarge: 16384
+  
+  # Storage mappings (in GB)
+  storage:
+    small: 40
+    medium: 100
+    large: 200
+    xlarge: 500
+
+# Environment variable mappings
+# Maps local environment variables to E-HPC environment variables
+environment:
+  # Example mappings:
+  # LOCAL_VAR: EHPC_VAR
+  # HOME: EHPC_HOME
+  
+  # Common mappings
+  PATH: PATH
+  HOME: HOME
+  USER: USER
+  SHELL: SHELL
+
+# Advanced mapping rules
+rules:
+  # Pattern-based user mapping
+  user_patterns:
+    # Example: map users with pattern 'student_*' to 'ehpc_student_*'
+    # - pattern: '^student_(.+)$'
+    #   replacement: 'ehpc_student_\1'
+    
+    # Example: map users with pattern '*@domain.com' to just the username part
+    # - pattern: '^(.+)@.+$'
+    #   replacement: '\1'
+  
+  # Group-based mapping
+  group_rules:
+    # Example: users in 'faculty' group get mapped to 'prof_' prefix
+    # - group: faculty
+    #   prefix: prof_
+    
+    # Example: users in 'students' group get mapped to 'std_' prefix
+    # - group: students
+    #   prefix: std_
+  
+  # Time-based mapping (for temporary access)
+  time_rules:
+    # Example: different mappings for different time periods
+    # - start_time: '09:00'
+    #   end_time: '17:00'
+    #   weekdays: [1, 2, 3, 4, 5]  # Monday to Friday
+    #   queue: business-hours
+    # - start_time: '17:00'
+    #   end_time: '09:00'
+    #   queue: after-hours

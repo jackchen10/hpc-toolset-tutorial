@@ -1,0 +1,27 @@
+name: MPI Python Job (Mandelbrot Set)
+host: hpc
+script: script.sh
+notes: |
+  MPI Python job template for parallel computation.
+  
+  This template is designed for running MPI Python scripts that require
+  multiple processes across multiple nodes. Perfect for computationally
+  intensive tasks like the Mandelbrot set calculation.
+  
+  Features:
+  - Multi-node MPI execution
+  - Automatic Python environment setup
+  - Required package installation (mpi4py, numpy, matplotlib)
+  - Comprehensive logging and error handling
+  - Resource allocation for parallel processing
+  
+  Default configuration:
+  - 2 nodes, 4 total tasks (2 tasks per node)
+  - 2GB memory per CPU
+  - 2 hour time limit
+  
+  To use this template:
+  1. Copy your MPI Python script to the job directory
+  2. Rename it to 'mandelbrot_mpi.py' or modify the script.sh accordingly
+  3. Adjust resource requirements in script.sh if needed
+  4. Submit the job
